@@ -112,7 +112,12 @@ function Course() {
   }
 
   const hole = course.holes[holeIndex];
+  const isFirstHole = holeIndex === 0;
   const isLastHole = holeIndex === course.holes.length - 1;
+
+  const previousHole = () => {
+    if (!isFirstHole) setHoleIndex((prev) => prev - 1);
+  };
 
   const nextHole = () => {
     if (!isLastHole) setHoleIndex((prev) => prev + 1);
@@ -128,7 +133,10 @@ function Course() {
         <div className="p-4 bg-gray-800 rounded"><p className="text-sm uppercase text-gray-400">Yardage</p><p className="text-2xl font-bold">{hole.yardage}</p></div>
         <div className="p-4 bg-gray-800 rounded"><p className="text-sm uppercase text-gray-400">Handicap</p><p className="text-2xl font-bold">{hole.handicap}</p></div>
       </div>
-      <button onClick={nextHole} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">{isLastHole ? "Finish Round" : "Next Hole"}</button>
+      <div className="grid grid-cols-2 gap-3 max-w-md">
+        <button disabled={isFirstHole} onClick={previousHole} className={`px-4 py-2 rounded ${isFirstHole ? "bg-gray-800 text-gray-500" : "bg-gray-700 hover:bg-gray-600 text-white"}`}>Previous Hole</button>
+        <button onClick={nextHole} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">{isLastHole ? "Finish Round" : "Next Hole"}</button>
+      </div>
     </div>
   );
 }
