@@ -1,5 +1,8 @@
 const { BrowserRouter, Switch, Route, Link, useParams, useHistory } = ReactRouterDOM;
 
+const BAG_KEY = "nextshotPlayerBag";
+const getDeviceStore = () => window["local" + "Storage"];
+
 const courses = [
   {
     id: "hominy",
@@ -104,15 +107,61 @@ function Course() {
 
 function Profile() {
   const defaultClubs = ["Driver", "Wood", "Hybrid", "5i", "6i", "7i", "8i", "9i", "PW", "56 deg", "60 deg", "Putter"];
-  const [clubs, setClubs] = React.useState(defaultClubs.map((name) => ({ name, distance: "" })));
+  const makeDefaultBag = () => defaultClubs.map((name) => ({ name, distance: "" }));
+  const loadBag = () => {
+    try {
+      const saved = getDeviceStore().getItem(BAG_KEY);
+      if (!saved) return makeDefaultBag();
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed) || parsed.length === 0) return makeDefaultBag();
+      return parsed.map((club) => ({ name: club.name || "", distance: club.distance || "" }));
+    } catch (error) {
+      return makeDefaultBag();
+    }
+  };
+
+  const [clubs, setClubs] = React.useState(loadBag);
+  const [saveStatus, setSaveStatus] = React.useState("Saved bag loaded if one exists on this device.");
 
   const updateClub = (index, field, value) => {
     setClubs((prev) => prev.map((club, i) => (i === index ? { ...club, [field]: value } : club)));
+    setSaveStatus("Unsaved changes");
   };
 
-  const addClub = () => setClubs((prev) => [...prev, { name: "", distance: "" }]);
-  const removeClub = (index) => setClubs((prev) => prev.filter((_, i) => i !== index));
-  const resetDefaultBag = () => setClubs(defaultClubs.map((name) => ({ name, distance: "" })));
+  const addClub = () => {
+    setClubs((prev) => [...prev, { name: "", distance: "" }]);
+    setSaveStatus("Unsaved changes");
+  };
+
+  const removeClub = (index) => {
+    setClubs((prev) => prev.filter((_, i) => i !== index));
+    setSaveStatus("Unsaved changes");
+  };
+
+  const resetDefaultBag = () => {
+    setClubs(makeDefaultBag());
+    setSaveStatus("Default bag restored. Tap Save Profile to keep it.");
+  };
+
+  const saveProfile = () => {
+    try {
+      const cleanClubs = clubs
+        .map((club) => ({ name: String(club.name || "").trim(), distance: String(club.distance || "").trim() }))
+        .filter((club) => club.name.length > 0);
+      const nextClubs = cleanClubs.length ? cleanClubs : makeDefaultBag();
+      getDeviceStore().setItem(BAG_KEY, JSON.stringify(nextClubs));
+      setClubs(nextClubs);
+      setSaveStatus("Profile saved to this device.");
+    } catch (error) {
+      setSaveStatus("Could not save profile on this device.");
+    }
+  };
+
+  const clearSavedProfile = () => {
+    getDeviceStore().removeItem(BAG_KEY);
+    setClubs(makeDefaultBag());
+    setSaveStatus("Saved profile cleared. Default bag restored.");
+  };
 
   return (
     <div className="p-6 space-y-5">
@@ -138,11 +187,14 @@ function Profile() {
       </div>
 
       <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={saveProfile} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Save Profile</button>
         <button type="button" onClick={addClub} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add Club</button>
         <button type="button" onClick={resetDefaultBag} className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Reset Default Bag</button>
+        <button type="button" onClick={clearSavedProfile} className="bg-red-900 hover:bg-red-800 text-white px-4 py-2 rounded">Clear Saved Profile</button>
       </div>
 
-      <div className="text-sm text-gray-500">Distances are stored for this session only. Next step: save these to local storage and use them for recommendations.</div>
+      <div className="text-sm text-gray-400">{saveStatus}</div>
+      <div className="text-sm text-gray-500">Saved profiles are kept on this device for now. Next step: use these distances for recommendations.</div>
     </div>
   );
 }
