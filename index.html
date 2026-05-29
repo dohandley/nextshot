@@ -1,15 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#050917" />
-    <meta name="description" content="NextShot helps golfers play faster and make smarter on-course decisions." />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NextShot</title>
+    <!-- Tailwind via CDN for rapid styling -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- React and ReactDOM via CDN -->
+    <script
+      src="https://unpkg.com/react@17/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <!-- React Router DOM via CDN -->
+    <script
+      src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"
+      crossorigin
+    ></script>
+    <!-- Babel standalone to allow JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
-  <body>
+  <body class="bg-gray-900 text-gray-100">
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- Load our application code -->
+    <!-- The data-presets attribute tells Babel to use the React preset so JSX
+         syntax can be transpiled in the browser. Without this the code
+         contained in app.js will not run. -->
+    <script type="text/babel" data-presets="react" src="./app.js"></script>
   </body>
 </html>
