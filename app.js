@@ -1,9 +1,5 @@
 const { BrowserRouter, Switch, Route, Link, useParams, useHistory } = ReactRouterDOM;
 
-// Sample course data. In a real application this would come from a backend
-// or be loaded from an external file. The structure below includes a few
-// Monmouth County courses with approximate yardages and handicaps for the
-// white tees. Feel free to adjust these values or add additional courses.
 const courses = [
   {
     id: "hominy",
@@ -46,38 +42,19 @@ const courses = [
   },
 ];
 
-/**
- * Home page component. Presents high-level navigation to other pages.
- */
 function Home() {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-4xl font-extrabold mb-4">NextShot</h1>
-      <p className="text-gray-300">
-        Select a course to start a round or configure your player profile.
-      </p>
+      <p className="text-gray-300">Select a course to start a round or configure your player profile.</p>
       <div className="space-y-2">
-        <Link
-          to="/courses"
-          className="block w-max bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Choose Course
-        </Link>
-        <Link
-          to="/profile"
-          className="block w-max bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          Set Player Profile
-        </Link>
+        <Link to="/courses" className="block w-max bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Choose Course</Link>
+        <Link to="/profile" className="block w-max bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Set Player Profile</Link>
       </div>
     </div>
   );
 }
 
-/**
- * Displays a list of available golf courses. When a course is clicked the user
- * is taken to the round view for that course.
- */
 function CoursesList() {
   return (
     <div className="p-6">
@@ -85,12 +62,7 @@ function CoursesList() {
       <ul className="space-y-2">
         {courses.map((course) => (
           <li key={course.id}>
-            <Link
-              to={`/course/${course.id}`}
-              className="text-blue-400 hover:underline"
-            >
-              {course.name}
-            </Link>
+            <Link to={`/course/${course.id}`} className="text-blue-400 hover:underline">{course.name}</Link>
           </li>
         ))}
       </ul>
@@ -98,11 +70,6 @@ function CoursesList() {
   );
 }
 
-/**
- * Component responsible for stepping through each hole of a selected course.
- * Users can navigate hole by hole using the "Next Hole" button. Once all holes
- * have been played a simple alert notifies that the round is complete.
- */
 function Course() {
   const { id } = useParams();
   const history = useHistory();
@@ -110,113 +77,76 @@ function Course() {
   const [holeIndex, setHoleIndex] = React.useState(0);
 
   if (!course) {
-    return (
-      <div className="p-6">
-        <p>Course not found.</p>
-      </div>
-    );
+    return <div className="p-6"><p>Course not found.</p></div>;
   }
 
   const hole = course.holes[holeIndex];
   const isLastHole = holeIndex === course.holes.length - 1;
 
   const nextHole = () => {
-    if (!isLastHole) {
-      setHoleIndex((prev) => prev + 1);
-    } else {
-      window.alert("Round complete!");
-    }
+    if (!isLastHole) setHoleIndex((prev) => prev + 1);
+    else window.alert("Round complete!");
   };
 
   return (
     <div className="p-6 space-y-4">
-      <button
-        className="text-blue-400 hover:underline"
-        onClick={() => history.goBack()}
-      >
-        &larr; Back
-      </button>
-      <h2 className="text-3xl font-bold">
-        {course.name} – Hole {hole.number}
-      </h2>
+      <button className="text-blue-400 hover:underline" onClick={() => history.goBack()}>&larr; Back</button>
+      <h2 className="text-3xl font-bold">{course.name} - Hole {hole.number}</h2>
       <div className="grid grid-cols-2 gap-4 max-w-md">
-        <div className="p-4 bg-gray-800 rounded">
-          <p className="text-sm uppercase text-gray-400">Par</p>
-          <p className="text-2xl font-bold">{hole.par}</p>
-        </div>
-        <div className="p-4 bg-gray-800 rounded">
-          <p className="text-sm uppercase text-gray-400">Yardage</p>
-          <p className="text-2xl font-bold">{hole.yardage}</p>
-        </div>
-        <div className="p-4 bg-gray-800 rounded">
-          <p className="text-sm uppercase text-gray-400">Handicap</p>
-          <p className="text-2xl font-bold">{hole.handicap}</p>
-        </div>
+        <div className="p-4 bg-gray-800 rounded"><p className="text-sm uppercase text-gray-400">Par</p><p className="text-2xl font-bold">{hole.par}</p></div>
+        <div className="p-4 bg-gray-800 rounded"><p className="text-sm uppercase text-gray-400">Yardage</p><p className="text-2xl font-bold">{hole.yardage}</p></div>
+        <div className="p-4 bg-gray-800 rounded"><p className="text-sm uppercase text-gray-400">Handicap</p><p className="text-2xl font-bold">{hole.handicap}</p></div>
       </div>
-      <button
-        onClick={nextHole}
-        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-      >
-        {isLastHole ? "Finish Round" : "Next Hole"}
-      </button>
+      <button onClick={nextHole} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">{isLastHole ? "Finish Round" : "Next Hole"}</button>
     </div>
   );
 }
 
-/**
- * Simple player profile setup. Allows users to enter the carry distances of
- * common clubs. Distances are stored in local component state for this
- * prototype. A real application might persist this to local storage or a
- * backend.
- */
 function Profile() {
-  const [bag, setBag] = React.useState({
-    driver: "",
-    threeWood: "",
-    hybrid: "",
-    sevenIron: "",
-    pitchingWedge: "",
-  });
+  const defaultClubs = ["Driver", "Wood", "Hybrid", "5i", "6i", "7i", "8i", "9i", "PW", "56 deg", "60 deg", "Putter"];
+  const [clubs, setClubs] = React.useState(defaultClubs.map((name) => ({ name, distance: "" })));
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setBag((prev) => ({ ...prev, [name]: value }));
+  const updateClub = (index, field, value) => {
+    setClubs((prev) => prev.map((club, i) => (i === index ? { ...club, [field]: value } : club)));
   };
 
+  const addClub = () => setClubs((prev) => [...prev, { name: "", distance: "" }]);
+  const removeClub = (index) => setClubs((prev) => prev.filter((_, i) => i !== index));
+  const resetDefaultBag = () => setClubs(defaultClubs.map((name) => ({ name, distance: "" })));
+
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="text-3xl font-bold">Player Profile</h2>
-      <p className="text-gray-400">
-        Enter the average carry distance (in yards) for each club.
-      </p>
-      <form className="space-y-4">
-        {Object.entries(bag).map(([club, distance]) => (
-          <div key={club}>
-            <label className="block text-sm font-semibold capitalize">
-              {club.replace(/([A-Z])/g, " $1")}
-            </label>
-            <input
-              type="number"
-              name={club}
-              value={distance}
-              onChange={handleChange}
-              className="w-full p-2 bg-gray-800 text-white rounded"
-              placeholder="Distance in yards"
-            />
+    <div className="p-6 space-y-5">
+      <div>
+        <h2 className="text-3xl font-bold">Player Profile</h2>
+        <p className="text-gray-400 mt-2">Build the exact bag you carry. Add or remove clubs, then enter your average carry distance for each one.</p>
+      </div>
+
+      <div className="space-y-3">
+        {clubs.map((club, index) => (
+          <div key={index} className="grid grid-cols-12 gap-2 items-end bg-gray-800 p-3 rounded">
+            <div className="col-span-5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1">Club</label>
+              <input type="text" value={club.name} onChange={(e) => updateClub(index, "name", e.target.value)} className="w-full p-2 bg-gray-900 text-white rounded" placeholder="Club" />
+            </div>
+            <div className="col-span-5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1">Carry yds</label>
+              <input type="number" value={club.distance} onChange={(e) => updateClub(index, "distance", e.target.value)} className="w-full p-2 bg-gray-900 text-white rounded" placeholder="Yards" />
+            </div>
+            <button type="button" onClick={() => removeClub(index)} className="col-span-2 text-red-300 text-xs font-semibold px-2 py-2">Remove</button>
           </div>
         ))}
-      </form>
-      <div className="text-sm text-gray-500">
-        Distances are stored for this session only.
       </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={addClub} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add Club</button>
+        <button type="button" onClick={resetDefaultBag} className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Reset Default Bag</button>
+      </div>
+
+      <div className="text-sm text-gray-500">Distances are stored for this session only. Next step: save these to local storage and use them for recommendations.</div>
     </div>
   );
 }
 
-/**
- * Main application component. Defines the routes and renders the corresponding
- * page components. Unmatched routes fall back to a simple "not found" view.
- */
 function App() {
   return (
     <BrowserRouter>
@@ -226,17 +156,11 @@ function App() {
         <Route path="/course/:id" component={Course} />
         <Route path="/profile" component={Profile} />
         <Route>
-          <div className="p-6">
-            <h2 className="text-2xl font-bold">Page not found</h2>
-            <Link to="/" className="text-blue-400 hover:underline">
-              Go Home
-            </Link>
-          </div>
+          <div className="p-6"><h2 className="text-2xl font-bold">Page not found</h2><Link to="/" className="text-blue-400 hover:underline">Go Home</Link></div>
         </Route>
       </Switch>
     </BrowserRouter>
   );
 }
 
-// Mount the application to the root div
 ReactDOM.render(<App />, document.getElementById("root"));
