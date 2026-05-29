@@ -1,4 +1,4 @@
-const { BrowserRouter, Switch, Route, Link, useParams, useHistory } = ReactRouterDOM;
+const { BrowserRouter, Switch, Route, Link, useParams, useHistory, useLocation } = ReactRouterDOM;
 
 const BAG_KEY = "nextshotPlayerBag";
 const getDeviceStore = () => window["local" + "Storage"];
@@ -45,9 +45,37 @@ const courses = [
   },
 ];
 
+function BottomNav() {
+  const location = useLocation();
+  const navItems = [
+    { to: "/", label: "Home" },
+    { to: "/courses", label: "Courses" },
+    { to: "/profile", label: "Profile" },
+  ];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 px-3 py-2 z-50">
+      <div className="max-w-md mx-auto grid grid-cols-3 gap-2">
+        {navItems.map((item) => {
+          const active = item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`text-center rounded-lg px-3 py-2 text-sm font-semibold ${active ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300"}`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 function Home() {
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 pb-24 space-y-4">
       <h1 className="text-4xl font-extrabold mb-4">NextShot</h1>
       <p className="text-gray-300">Select a course to start a round or configure your player profile.</p>
       <div className="space-y-2">
@@ -60,12 +88,12 @@ function Home() {
 
 function CoursesList() {
   return (
-    <div className="p-6">
+    <div className="p-6 pb-24">
       <h2 className="text-3xl font-bold mb-4">Courses</h2>
       <ul className="space-y-2">
         {courses.map((course) => (
           <li key={course.id}>
-            <Link to={`/course/${course.id}`} className="text-blue-400 hover:underline">{course.name}</Link>
+            <Link to={`/course/${course.id}`} className="block bg-gray-800 hover:bg-gray-700 p-4 rounded text-blue-300 font-semibold">{course.name}</Link>
           </li>
         ))}
       </ul>
@@ -80,7 +108,7 @@ function Course() {
   const [holeIndex, setHoleIndex] = React.useState(0);
 
   if (!course) {
-    return <div className="p-6"><p>Course not found.</p></div>;
+    return <div className="p-6 pb-24"><p>Course not found.</p></div>;
   }
 
   const hole = course.holes[holeIndex];
@@ -92,7 +120,7 @@ function Course() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 pb-24 space-y-4">
       <button className="text-blue-400 hover:underline" onClick={() => history.goBack()}>&larr; Back</button>
       <h2 className="text-3xl font-bold">{course.name} - Hole {hole.number}</h2>
       <div className="grid grid-cols-2 gap-4 max-w-md">
@@ -151,7 +179,7 @@ function Profile() {
       const nextClubs = cleanClubs.length ? cleanClubs : makeDefaultBag();
       getDeviceStore().setItem(BAG_KEY, JSON.stringify(nextClubs));
       setClubs(nextClubs);
-      setSaveStatus("Profile saved to this device.");
+      setSaveStatus("Profile saved to this device. Use Courses below to start a round.");
     } catch (error) {
       setSaveStatus("Could not save profile on this device.");
     }
@@ -164,7 +192,7 @@ function Profile() {
   };
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-6 pb-24 space-y-5">
       <div>
         <h2 className="text-3xl font-bold">Player Profile</h2>
         <p className="text-gray-400 mt-2">Build the exact bag you carry. Add or remove clubs, then enter your average carry distance for each one.</p>
@@ -188,7 +216,8 @@ function Profile() {
 
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={saveProfile} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Save Profile</button>
-        <button type="button" onClick={addClub} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add Club</button>
+        <Link to="/courses" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Start Round</Link>
+        <button type="button" onClick={addClub} className="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded">Add Club</button>
         <button type="button" onClick={resetDefaultBag} className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Reset Default Bag</button>
         <button type="button" onClick={clearSavedProfile} className="bg-red-900 hover:bg-red-800 text-white px-4 py-2 rounded">Clear Saved Profile</button>
       </div>
@@ -202,15 +231,18 @@ function Profile() {
 function App() {
   return (
     <BrowserRouter>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/courses" component={CoursesList} />
-        <Route path="/course/:id" component={Course} />
-        <Route path="/profile" component={Profile} />
-        <Route>
-          <div className="p-6"><h2 className="text-2xl font-bold">Page not found</h2><Link to="/" className="text-blue-400 hover:underline">Go Home</Link></div>
-        </Route>
-      </Switch>
+      <div className="min-h-screen bg-gray-900 text-gray-100">
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/courses" component={CoursesList} />
+          <Route path="/course/:id" component={Course} />
+          <Route path="/profile" component={Profile} />
+          <Route>
+            <div className="p-6 pb-24"><h2 className="text-2xl font-bold">Page not found</h2><Link to="/" className="text-blue-400 hover:underline">Go Home</Link></div>
+          </Route>
+        </Switch>
+        <BottomNav />
+      </div>
     </BrowserRouter>
   );
 }
