@@ -1,0 +1,9 @@
+[
+  {"id":"charleston-north","name":"Charleston Springs North","location":"Millstone, NJ"},
+  {"id":"charleston-south","name":"Charleston Springs South","location":"Millstone, NJ"},
+  {"id":"pebble-creek","name":"Pebble Creek","location":"Colts Neck, NJ"},
+  {"id":"knob-hill","name":"Knob Hill","location":"Manalapan, NJ"},
+  {"id":"cream-ridge","name":"Cream Ridge","location":"Cream Ridge, NJ"},
+  {"id":"eagle-ridge","name":"Eagle Ridge","location":"Lakewood, NJ"},
+  {"id":"shark-river","name":"Shark River","location":"Neptune, NJ"}
+]
